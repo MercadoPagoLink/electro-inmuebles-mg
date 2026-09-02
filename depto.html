@@ -32,7 +32,7 @@ form button{margin-top:.7rem;width:100%;padding:.8rem;border:0;border-radius:12p
 <div id="content"><div class="loading">Cargando...</div></div>
 <script>
 const id=new URLSearchParams(location.search).get("id");
-fetch("data.json").then(r=>r.json()).then(function(list){
+function render(list){
   const d=(list||[]).find(x=>String(x.id)===String(id));
   if(!d){document.getElementById("content").innerHTML='<div class="loading">No encontrado. <a href="index.html">Volver</a></div>';return}
   const photos=(d.photos&&d.photos.length)?d.photos:(d.main?[d.main]:[]);
@@ -71,6 +71,9 @@ fetch("data.json").then(r=>r.json()).then(function(list){
     const arr=JSON.parse(localStorage.getItem("eimg_consultas")||"[]");arr.push(item);localStorage.setItem("eimg_consultas",JSON.stringify(arr));
     document.getElementById("ok").style.display="block";
   };
+}
+Promise.all([1,2,3,4].map(n=>fetch("data"+n+".json").then(r=>r.json()))).then(parts=>render(parts.flat())).catch(()=>{
+  fetch("data.json").then(r=>r.json()).then(render).catch(()=>{document.getElementById("content").innerHTML='<div class="loading">Error al cargar. <a href="index.html">Volver</a></div>'});
 });
 function show(i){
   if(!window.photos||!window.photos.length)return;
