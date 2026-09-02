@@ -1,8 +1,5 @@
 # Electro Inmuebles MG
 
-Sitio de alquileres. Consultas dentro de la web (sin redirecciones).
+El sitio **no se publica en GitHub Pages**.
 
-Repo: https://github.com/MercadoPagoLink/electro-inmuebles-mg
-Pages: https://mercadopagolink.github.io/electro-inmuebles-mg/
-
-Para publicar: Settings → Pages → Source = Deploy from a branch → Branch main / root.
+Sitio oficial (Wix): https://www.electro-mg.com
