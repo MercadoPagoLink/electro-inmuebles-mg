@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Departamento | Electro Inmuebles MG</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;background:#f0f0f0;color:#222;padding-bottom:80px}
+.header{background:#1a1a2e;color:#fff;padding:.8rem 1rem}.header a{color:#fff;text-decoration:none}
+.gallery{background:#111;position:relative}.gallery img.main{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.g-nav{position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;gap:8px}
+.g-nav button{background:rgba(0,0,0,.6);border:0;color:#fff;width:40px;height:40px;border-radius:50%}
+.counter{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.65);color:#fff;padding:4px 10px;border-radius:999px;font-size:.8rem}
+.thumbs{display:flex;gap:6px;overflow-x:auto;padding:10px;background:#fff}
+.thumbs img{width:70px;height:52px;object-fit:cover;border-radius:6px;opacity:.65}
+.thumbs img.on{opacity:1;outline:2px solid #ff5500}
+.box,.section{background:#fff;margin-top:8px;padding:1.1rem 1.2rem}
+.price{font-size:1.55rem;font-weight:800;color:#ff5500}
+.h2{font-size:1.15rem;font-weight:700;margin:.3rem 0}
+.specs{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.9rem}
+.spec{background:#f3f3f3;border-radius:999px;padding:.4rem .75rem;font-size:.82rem}
+.desc{font-size:.9rem;line-height:1.55}
+form label{display:block;font-size:.8rem;font-weight:600;margin:.5rem 0 .2rem}
+form input,form textarea{width:100%;padding:.65rem;border:1.5px solid #ddd;border-radius:10px}
+form button{margin-top:.7rem;width:100%;padding:.8rem;border:0;border-radius:12px;background:#ff5500;color:#fff;font-weight:800}
+.ok{display:none;background:#e8f5e9;padding:.8rem;border-radius:10px;margin-top:.6rem}
+.loading{text-align:center;padding:3rem;color:#888}
+</style>
+</head>
+<body>
+<div class="header"><a href="index.html">Electro Inmuebles MG</a></div>
+<div id="content"><div class="loading">Cargando...</div></div>
+<script>
+const id=new URLSearchParams(location.search).get("id");
+fetch("data.json").then(r=>r.json()).then(function(list){
+  const d=(list||[]).find(x=>String(x.id)===String(id));
+  if(!d){document.getElementById("content").innerHTML='<div class="loading">No encontrado. <a href="index.html">Volver</a></div>';return}
+  const photos=(d.photos&&d.photos.length)?d.photos:(d.main?[d.main]:[]);
+  window.photos=photos;window.cur=0;
+  const specs=[d.ambientes,d.dormitorios,d.banos,d.m2].filter(Boolean);
+  document.title=(d.title||"Departamento")+" | Electro Inmuebles MG";
+  document.getElementById("content").innerHTML=`
+    <div class="gallery">
+      <img class="main" id="mainImg" src="${photos[0]||""}" alt="">
+      <div class="counter" id="counter">1 / ${photos.length||1}</div>
+      <div class="g-nav"><button type="button" onclick="show(cur-1)">‹</button><button type="button" onclick="show(cur+1)">›</button></div>
+    </div>
+    <div class="thumbs" id="thumbs"></div>
+    <div class="box">
+      <div class="price">${d.price||"Consultar"}</div>
+      <div class="h2">${d.title||"Departamento"}</div>
+      <div>${d.zona||""}</div>
+      <div class="specs">${specs.map(s=>`<span class="spec">${s}</span>`).join("")}</div>
+    </div>
+    <div class="section"><h3>Descripcion</h3><div class="desc">${(d.desc||"").replace(/</g,"")}</div></div>
+    <div class="section">
+      <h3>Consultar esta propiedad</h3>
+      <form id="f">
+        <label>Nombre</label><input name="nombre" required>
+        <label>Telefono</label><input name="tel" required>
+        <label>Mensaje</label><textarea name="msg" rows="3">Me interesa ${d.title||""} (ID ${d.id})</textarea>
+        <button type="submit">Enviar consulta</button>
+      </form>
+      <div class="ok" id="ok">Consulta enviada. Queda registrada en este dispositivo. Te contactamos a la brevedad.</div>
+    </div>`;
+  photos.forEach((src,i)=>{const im=document.createElement("img");im.src=src;im.className=i===0?"on":"";im.onclick=()=>show(i);document.getElementById("thumbs").appendChild(im)});
+  document.getElementById("f").onsubmit=function(e){
+    e.preventDefault();
+    const fd=new FormData(e.target);
+    const item={id:d.id,title:d.title,nombre:fd.get("nombre"),tel:fd.get("tel"),msg:fd.get("msg"),fecha:new Date().toISOString()};
+    const arr=JSON.parse(localStorage.getItem("eimg_consultas")||"[]");arr.push(item);localStorage.setItem("eimg_consultas",JSON.stringify(arr));
+    document.getElementById("ok").style.display="block";
+  };
+});
+function show(i){
+  if(!window.photos||!window.photos.length)return;
+  if(i<0)i=window.photos.length-1;if(i>=window.photos.length)i=0;window.cur=i;
+  document.getElementById("mainImg").src=window.photos[i];
+  document.getElementById("counter").textContent=(i+1)+" / "+window.photos.length;
+  document.querySelectorAll("#thumbs img").forEach((el,idx)=>el.classList.toggle("on",idx===i));
+}
+</script>
+</body>
+</html>
