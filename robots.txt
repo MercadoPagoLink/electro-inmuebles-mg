@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Sitemap: https://mercadopagolink.github.io/electro-inmuebles-mg/sitemap.xml
